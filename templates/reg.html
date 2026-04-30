@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="card">
+        <h1>registration</h1>
+        <form method="post">
+            {{form.csrf_token}}
+            {{form.login.label}}
+            <br>
+            {{form.login()}}
+            <br>
+            {{form.password.label}}
+            <br>
+            {{form.password()}}
+            <br>
+            <nav>
+                {{form.submit()}}<a href="/">home</a>
+            </nav>
+        </form> 
+    </div>
+    <hr>
+    <small>order by OM3SHKA</small>
+</body>
+</html>

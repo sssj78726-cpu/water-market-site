@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>cataloge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Cataloge</h1>
+    
+        {% for product in products %}
+            <div class="card2">
+                name:{{product.name}}|
+                cost:{{product.price}}$|
+                <img src="{{url_for( 'static', filename = 'image/' + product.image)}}" width="100">
+                <div class="plus">
+                    <a href="/add_cart/{{product.id}}">+</a>
+                </div>
+            </div>
+                {% endfor %}
+   
+    <hr>
+    <nav>
+        <a href="/">home</a>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+         .aa  {
+            color:black;
+            font-size:30px;
+            font-style:normal;
+            position:relative;
+            width:max-content;
+        }
+         .aa a::after {
+            content:"";
+            bottom:0;
+            left:0;
+            width:0%;
+            height:4px;
+            background:red;
+            position:absolute;
+            border-radius:100%;
+            transition:100ms;
+        }
+        .aa a:hover::after {
+            width:100%;
+        }
+        .aa a:hover {
+            color:red;
+        }
+    </style>
+</head>
+<body>
+    <h1>You cart</h1>
+    {% for item in items %}
+    <div class="card2">
+        name:{{item.name}}|
+        cost:{{item.price}}$|
+        value:{{item.quantity}}|
+        <img src="{{url_for('static',filename = 'image/' + item.image )}} " width="30">
+        <a href="/delete_one/{{item.id}}">-</a>
+        <div class="aa">
+            <a href="/remove_cart/{{item.id}}">Delete</a>
+        </div>
+        <br>
+    </div>
+    {% endfor %}
+    <hr>
+    <nav>
+        <a href="/catalog">cataloge</a>
+    </nav>
+</body> 
+</html>

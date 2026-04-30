@@ -1,0 +1,124 @@
+body {
+    background-color:#0094ff
+}
+h1 {
+    text-align:center;
+    text-shadow:3px 3px 6px black;
+}
+a {
+    color:black;
+    text-decoration:none;
+    font-size:30px;
+    font-style:italic;
+    margin-left:10px;
+}
+
+nav a {
+    position: relative;
+    width: max-content;
+    border: none;
+    color: black;
+    text-decoration: none;
+    font-size: 23px;
+    margin-right: 10px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+nav a:hover {
+    text-shadow:2px 2px 3px #36e6ff;
+    color:#005bff
+}
+nav a::after {
+    content: "";
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(to right,#36e6ff,#16a9ff);
+    border-radius: 100px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: 100ms
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+.links {
+    background-color:#0034ff;
+    box-shadow:3px 3px 6px black;
+    margin-left:850px;
+    border-radius:12px;
+    border:2px solid black;
+    width:10%
+}
+small {
+    margin-left:850px
+}
+.card {
+    width: 0%;
+    background: linear-gradient(to top,#36e6ff,#005bff);
+    border: 3px solid black;
+    border-radius: 8px;
+    margin-top: 100px;
+    margin-bottom: 30px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 20px;
+    transition:300ms;
+    font-size:20px;
+    opacity:0
+}
+hr {
+    margin-top:10px;
+}
+.card:hover {
+    background: linear-gradient(to top,#005bff ,#36e6ff );
+    box-shadow:3px 3px 6px black;
+    width:30%;
+    opacity:1
+}
+.card a {
+    font-style:normal;
+    font-size:20px;
+}
+input[type="text"], input[type="password"]{
+    border-radius:10px;
+    width:30%;
+    height:20px;
+    transition:100ms;   
+}
+
+input[type="text"], input[type="password"]:focus{
+    background-color:#79e9f8;
+    color:black;
+}
+input[type="submit"] {
+    color:black;
+    background-color:forestgreen;
+    width:30%;
+    height:30px;
+    border-radius:80px;
+    margin-top:20px;
+    transition:100ms;
+}
+input[type="submit"]:hover {
+    background-color:#23b023;
+    box-shadow:2px 2px 3px black;
+}
+.card2 {
+    width:15%;
+    border:1px solid black;
+    padding-right:10px;
+    padding-top:20px;
+    background-color:#133ad1;
+    margin-top:20px;
+    padding-left:10px;
+    border-radius:12px
+}
+.plus a:hover{
+    color:#1bae1b;
+    text-shadow:1px 1px 1px forestgreen;
+}
