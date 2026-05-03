@@ -6,11 +6,29 @@
 </head>
 <body>
     <h1>Shop of water</h1>
-    <div class="links">
-        <nav>
-            <a href="/cart">Cart</a>
-            <a href="/catalog">cataloge</a>
-        </nav>
+    {% if 'user' not in session%}
+        <div class="login">
+            <a href="/login">LOGIN</a>
+        </div>
+    {% else %}
+        <div class="login">
+            <a href="/exit">EXIT</a>
+        </div>
+        <br>
+        <div class="login">
+            <a href="/profile">profile</a>
+        </div>
+    {% endif %}
+    <div class="card2Boss">
+        <div class="links">
+            <nav>
+                <a href="/cart">Cart</a>
+                <a href="/catalog">cataloge</a>
+            </nav>
+            <div class="sprite">
+                <a href="/sprite">Sprite!!!</a>
+            </div>
+        </div>
     </div>
     <hr>
     <small>order by @OM3SHKA</small>

@@ -49,27 +49,25 @@ nav a:hover::after {
 .links {
     background-color:#0034ff;
     box-shadow:3px 3px 6px black;
-    margin-left:850px;
     border-radius:12px;
     border:2px solid black;
-    width:10%
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: max-content;
+    align-items: center;
 }
 small {
     margin-left:850px
 }
 .card {
-    width: 0%;
+    width: 30%;
     background: linear-gradient(to top,#36e6ff,#005bff);
     border: 3px solid black;
     border-radius: 8px;
-    margin-top: 100px;
-    margin-bottom: 30px;
-    margin-right: auto;
-    margin-left: auto;
     padding: 20px;
     transition:300ms;
     font-size:20px;
-    opacity:0
 }
 hr {
     margin-top:10px;
@@ -77,8 +75,6 @@ hr {
 .card:hover {
     background: linear-gradient(to top,#005bff ,#36e6ff );
     box-shadow:3px 3px 6px black;
-    width:30%;
-    opacity:1
 }
 .card a {
     font-style:normal;
@@ -112,13 +108,83 @@ input[type="submit"]:hover {
     width:15%;
     border:1px solid black;
     padding-right:10px;
-    padding-top:20px;
     background-color:#133ad1;
-    margin-top:20px;
-    padding-left:10px;
-    border-radius:12px
+    border-radius:12px;
+    transition: 300ms;
 }
 .plus a:hover{
     color:#1bae1b;
     text-shadow:1px 1px 1px forestgreen;
+}
+.sprite a {
+    color: forestgreen;
+    position: relative;
+    border: none;
+    width: max-content;
+    text-decoration: none;
+    font-size: 23px;
+    margin-right: 10px;
+}
+.sprite a::after {
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    border-radius:100%;
+    width:0%;
+    height:3px;
+    background:linear-gradient(to top,#1bae1b,#80ff80);
+    transition:100ms;
+}
+.sprite a:hover::after {
+    width:100%;
+}
+.sprite a:hover{
+    color:white;
+    text-shadow:1px 1px 2px green; 
+}
+.login a {
+    background-color: #f5ff00;
+    color: white;
+    border: 1px solid black;
+    padding: 5px;
+    margin-left: 1700px;
+    font-size: 20px;
+    text-shadow: 0px 0px 2px black;
+    border-radius: 15px;
+    box-shadow: 0px 1px 10px black;
+}
+.login a:hover {
+    background:#ff001f;
+    color:#ffb7b7;
+    transition:300ms;
+    box-shadow:0px 3px 10px black
+}
+
+.profile{
+    margin: auto;
+    padding: 10px;
+    background-color: cornflowerblue;
+    border-radius: 10px;
+    font-style: normal;
+    display: flex;
+    justify-content: center;
+    flex-wrap:nowrap;
+}
+.but{
+    width: 200px;
+    height: 200px;
+    background:linear-gradient(to top,#0034ff,#16a9ff);
+    box-shadow: 2px 2px 4px black;
+}
+.card2Boss{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    gap:20px
+}
+.card2:hover{
+    box-shadow: 0px 0px 3px black;
+    border-radius: 24px;
 }

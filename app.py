@@ -3,8 +3,8 @@ import hashlib
 from dotenv import load_dotenv
 import os
 from flask_wtf import FlaskForm
-from wtforms import DateTimeLocalField, StringField, SelectField, SubmitField,PasswordField
-from wtforms.validators import DataRequired, Length
+from wtforms import DateTimeLocalField, StringField, SelectField, SubmitField,PasswordField,RadioField
+from wtforms.validators import DataRequired, Length,ValidationError
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
@@ -15,6 +15,7 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///marcet.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -23,6 +24,8 @@ class User(db.Model):
     login = db.Column(db.String(80), unique = True, nullable = False)
     Password = db.Column(db.String(120), nullable = False)
     is_admin = db.Column(db.Integer, default = 0)
+    balance = db.Column(db.Integer, default = 0)
+    image = db.Column(db.String(150),nullable = False)
 
 class Cartss(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -43,10 +46,19 @@ class RegForm(FlaskForm):
     password = PasswordField('password', validators=[DataRequired(),Length(min=6,message='min lenght 6 simvols!')])
     submit = SubmitField('registration')
 
+    def validate_login(self, field):
+        user = User.query.filter_by(login = field.data).first()
+        if user:
+            raise ValidationError('this login in base!!')
+
 class LoginForm(FlaskForm):
     login = StringField('login',validators=[DataRequired()])
     password = PasswordField('password',validators=[DataRequired()])
     submit = SubmitField('sign in')
+
+class Photos(FlaskForm):
+    change = RadioField('change',choices=[('default.png','dog'),('cat.png','cat'),('parrot.png','parrot')],default='default.png', validators=[DataRequired()])
+    submit = SubmitField('submit')
 
 @app.route('/')
 def home():
@@ -61,7 +73,8 @@ def reg():
             password = form.password.data
             hashs = hashlib.sha256(password.encode()).hexdigest()
             is_admin = 0
-            new_user = User(login = login, Password = hashs, is_admin = is_admin)
+            balance = 0
+            new_user = User(login = login, Password = hashs, is_admin = is_admin, balance = balance,image = 'default.png')
             db.session.add(new_user)
             db.session.commit()
             return "<h1>you registr</h1><a href='/login'>sign in</a>"
@@ -160,6 +173,58 @@ def delete_one(product_id):
             db.session.commit()
             return redirect(url_for('cart'))
 
+@app.route('/sprite')
+def sprite():
+    return render_template('sprite.html')
+
+@app.route('/exit')
+def exits():
+    session.pop('user',None)
+    return redirect(url_for('home'))
+
+@app.route('/profile')
+def profile():
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(login = session['user']).first()
+    if not user:
+        return redirect(url_for('home'))
+    return render_template('profile.html',user = user, name = user.login,balance = user.balance,image = user.image)
+
+@app.route('/change_avatar',methods = ["GET","POST"])
+def change_avatar():
+    form = Photos()
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(login = session['user']).first()
+    if not user:
+        return redirect(url_for('home'))
+    if request.method == "POST" and form.validate_on_submit():
+        avatar = form.change.data
+        user.image = avatar
+        db.session.commit()
+        return redirect(url_for('change_avatar'))
+    else:
+        return render_template('change.html',form = form,image = user.image)
+
+@app.route('/add_balance')
+def add_balance():
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(login = session['user']).first()
+    if not user:
+        return redirect(url_for('home'))
+    user.balance +=10
+    db.session.commit()
+    return redirect(url_for('profile'))
+
+@app.errorhandler(404)
+def error404(e):
+    return '<title>Oops</title><style>h1{color:red;} body{ background-color:gray}</style><h1>Oops! error 404</h1><a href="/">home</a>',404
+
+@app.errorhandler(500)
+def error500(e):
+    return '<title>Oops</title><style>h1{color:red;} body{ background-color:gray}</style><h1>Oops! error 500</h1><a href="/">home</a>',500
 
 if __name__ == '__main__':
     app.run(debug= True)
