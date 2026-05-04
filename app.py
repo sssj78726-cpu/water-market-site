@@ -56,6 +56,10 @@ class LoginForm(FlaskForm):
     password = PasswordField('password',validators=[DataRequired()])
     submit = SubmitField('sign in')
 
+class SearchForm(FlaskForm):
+    name = StringField('name',validators=[DataRequired()])
+    submit = SubmitField('search')
+
 class Photos(FlaskForm):
     change = RadioField('change',choices=[('default.png','dog'),('cat.png','cat'),('parrot.png','parrot')],default='default.png', validators=[DataRequired()])
     submit = SubmitField('submit')
@@ -163,7 +167,7 @@ def delete_one(product_id):
         return redirect(url_for('home'))
     q = Cartss.query.filter_by(user_id = user.id, product_id = product_id).first()
     if q:
-        if q.quantity > 0:
+        if q.quantity > 1:
             q.quantity -=1
             db.session.add(q)
             db.session.commit()
@@ -218,6 +222,46 @@ def add_balance():
     db.session.commit()
     return redirect(url_for('profile'))
 
+@app.route('/secret')
+def secret():
+    return '<h1>what?</h1><a href="/">back</a>'
+
+@app.route('/search',methods =["GET","POST"])
+def search():
+    form = SearchForm()
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(login = session['user']).first()
+    if not user:
+        return redirect(url_for('home'))
+    if request.method == "POST" and form.validate_on_submit():
+        name = form.name.data
+        user_search = User.query.filter(User.login.contains(name)).all()
+        return render_template('search_result.html', users = user_search)
+    else:
+        return render_template('search.html',form = form)
+    
+@app.route('/profile/<int:id>')
+def another_profile(id):
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(id = id).first()
+    if not user:
+        return redirect(url_for('home'))
+    return render_template('another.html',user = user)
+
+#future func.
+'''
+@app.route('/buy/<int:id>')
+def carts_buy(id):
+    if 'user' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(login = session['user']).first()
+    if not user:
+        return redirect(url_for('home'))
+    cart = Cartss.query.filter_by(id = id).first() 
+'''
+
 @app.errorhandler(404)
 def error404(e):
     return '<title>Oops</title><style>h1{color:red;} body{ background-color:gray}</style><h1>Oops! error 404</h1><a href="/">home</a>',404
@@ -228,4 +272,3 @@ def error500(e):
 
 if __name__ == '__main__':
     app.run(debug= True)
-    

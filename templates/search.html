@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search</title>
+    <link rel="stylesheet" href="{{url_for('static',filename = 'search.css')}}">
+</head>
+<body>
+    <h1>SEARCH</h1>
+    <div class="parrent">    
+        <form method="post">
+            {{form.csrf_token}}
+            {{form.name()}}
+            {{form.submit()}}
+        </form>
+    </div>
+    <a href="/">back</a>
+</body>
+</html>
