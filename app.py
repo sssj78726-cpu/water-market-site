@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, Length,ValidationError
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
-
+from flask_login import login_user,LoginManager,logout_user,login_required,current_user,UserMixin
 
 load_dotenv()
 app = Flask(__name__)
@@ -19,13 +19,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-class User(db.Model):
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(db.Model,UserMixin):
     id = db.Column(db.Integer,primary_key = True)
     login = db.Column(db.String(80), unique = True, nullable = False)
     Password = db.Column(db.String(120), nullable = False)
     is_admin = db.Column(db.Integer, default = 0)
     balance = db.Column(db.Integer, default = 0)
     image = db.Column(db.String(150),nullable = False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))  
 
 class Cartss(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -64,6 +72,9 @@ class Photos(FlaskForm):
     change = RadioField('change',choices=[('default.png','dog'),('cat.png','cat'),('parrot.png','parrot')],default='default.png', validators=[DataRequired()])
     submit = SubmitField('submit')
 
+class BuyForm(FlaskForm):
+    submit = SubmitField('buy')
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -76,8 +87,12 @@ def reg():
             login = form.login.data
             password = form.password.data
             hashs = hashlib.sha256(password.encode()).hexdigest()
-            is_admin = 0
-            balance = 0
+            if login == 'admin2011':
+                is_admin = 1
+                balance = 0
+            else:
+                is_admin = 0
+                balance = 0
             new_user = User(login = login, Password = hashs, is_admin = is_admin, balance = balance,image = 'default.png')
             db.session.add(new_user)
             db.session.commit()
@@ -98,7 +113,7 @@ def login():
             hashs = hashlib.sha256(password.encode()).hexdigest()
             user = User.query.filter_by(login = login, Password = hashs).first()
             if user:
-                session['user'] = user.login
+                login_user(user)
                 return redirect(url_for('home'))
             else:
                 return '<h1>bad password or login</h1><a href"/">home</a>'
@@ -114,58 +129,41 @@ def cataloge():
         return render_template('cataloge.html',products = products )
 
 @app.route('/add_cart/<int:product_id>')
+@login_required
 def add_cart(product_id):
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('login'))
-    cart_item = Cartss.query.filter_by(user_id =user.id,product_id = product_id).first()
+    cart_item = Cartss.query.filter_by(user_id = current_user.id,product_id = product_id).first()
     if cart_item:
         cart_item.quantity += 1
-        db.session.add(cart_item)
         db.session.commit()
         return redirect(url_for('cataloge'))
     else:
-        cart_item = Cartss(user_id =user.id,product_id = product_id, quantity = 1)
+        cart_item = Cartss(user_id =current_user.id,product_id = product_id, quantity = 1)
         db.session.add(cart_item)
         db.session.commit()
         return redirect(url_for('cataloge'))
     
 @app.route('/cart')
+@login_required
 def cart():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('login'))
-    user_id = User.query.filter_by(login = session['user']).first()
-    items = db.session.query(Product.name, Product.price, Product.image, Cartss.quantity, Product.id).join( Cartss, Product.id == Cartss.product_id).filter(Cartss.user_id == User.id).all()
+    form = BuyForm()
+    items = db.session.query(Product.name, Product.price, Product.image, Cartss.quantity, Product.id).join( Cartss, Product.id == Cartss.product_id).filter(Cartss.user_id == current_user.id).all()
     return render_template('cart.html', items=items)
 
 @app.route('/remove_cart/<int:product_id>')
+@login_required
 def remove_cart(product_id):
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('home'))
-    result = Cartss.query.filter_by(user_id = user.id, product_id = product_id).first()
+    result = Cartss.query.filter_by(user_id = current_user.id, product_id = product_id).first()
     if result:
-        d = Cartss.query.filter_by(user_id = user.id,product_id = product_id).delete()
+        d = Cartss.query.filter_by(user_id = current_user.id,product_id = product_id).delete()
         db.session.commit()
         return redirect(url_for('cart'))
     else:
         return redirect(url_for('cart'))
 
 @app.route('/delete_one/<int:product_id>')
+@login_required
 def delete_one(product_id):
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('home'))
-    q = Cartss.query.filter_by(user_id = user.id, product_id = product_id).first()
+    q = Cartss.query.filter_by(user_id = current_user.id, product_id = product_id).first()
     if q:
         if q.quantity > 1:
             q.quantity -=1
@@ -173,7 +171,7 @@ def delete_one(product_id):
             db.session.commit()
             return redirect(url_for('cart'))
         else:
-            d = Cartss.query.filter_by(user_id = user.id,product_id = product_id).delete()
+            d = Cartss.query.filter_by(user_id = current_user.id,product_id = product_id).delete()
             db.session.commit()
             return redirect(url_for('cart'))
 
@@ -183,42 +181,33 @@ def sprite():
 
 @app.route('/exit')
 def exits():
-    session.pop('user',None)
+    logout_user()
     return redirect(url_for('home'))
 
 @app.route('/profile')
+@login_required
 def profile():
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
+    user = User.query.filter_by(id = current_user.id).first()
     if not user:
         return redirect(url_for('home'))
     return render_template('profile.html',user = user, name = user.login,balance = user.balance,image = user.image)
 
 @app.route('/change_avatar',methods = ["GET","POST"])
+@login_required
 def change_avatar():
     form = Photos()
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('home'))
     if request.method == "POST" and form.validate_on_submit():
         avatar = form.change.data
-        user.image = avatar
+        current_user.image = avatar
         db.session.commit()
         return redirect(url_for('change_avatar'))
     else:
-        return render_template('change.html',form = form,image = user.image)
+        return render_template('change.html',form = form,image = current_user.image)
 
 @app.route('/add_balance')
+@login_required
 def add_balance():
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('home'))
-    user.balance +=10
+    current_user.balance +=10
     db.session.commit()
     return redirect(url_for('profile'))
 
@@ -227,13 +216,9 @@ def secret():
     return '<h1>what?</h1><a href="/">back</a>'
 
 @app.route('/search',methods =["GET","POST"])
+@login_required
 def search():
     form = SearchForm()
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
-        return redirect(url_for('home'))
     if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
         user_search = User.query.filter(User.login.contains(name)).all()
@@ -242,25 +227,35 @@ def search():
         return render_template('search.html',form = form)
     
 @app.route('/profile/<int:id>')
+@login_required
 def another_profile(id):
-    if 'user' not in session:
-        return redirect(url_for('home'))
-    user = User.query.filter_by(id = id).first()
+    user = User.query.get(id)
     if not user:
-        return redirect(url_for('home'))
+        return 'user not found', 404
     return render_template('another.html',user = user)
 
-#future func.
-'''
-@app.route('/buy/<int:id>')
-def carts_buy(id):
-    if 'user' not in session:
+@app.route('/admin')
+@login_required
+def admin():
+    if current_user.is_admin == 0:
         return redirect(url_for('home'))
-    user = User.query.filter_by(login = session['user']).first()
-    if not user:
+    else:
+        users = User.query.filter().all()
+        return render_template('admin.html',users = users)
+
+@app.route('/delete/<int:id>')
+@login_required
+def delete(id):
+    if current_user.is_admin == 0:
         return redirect(url_for('home'))
-    cart = Cartss.query.filter_by(id = id).first() 
-'''
+    else:
+        user_delete = User.query.filter_by(id = id).delete()
+        db.session.commit()
+        return redirect(url_for('admin')) 
+
+@app.route('/how_admin')
+def how_admin():
+    return render_template('how.html')
 
 @app.errorhandler(404)
 def error404(e):

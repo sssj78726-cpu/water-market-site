@@ -3,9 +3,13 @@ body{
     background-color: #0094ff;
 }
 input{
-    display: flex;
-    justify-content: center;
     border-radius: 12px;
+    opacity: 0.5;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
 }
 .parrent{
     display: flex;
@@ -14,15 +18,17 @@ input{
     flex-wrap: wrap;
     align-items: center;
 }
-input[type='submit']{
+input[type="submit"]{
     background-color: #4bf870c2;
     border-radius: 12px;
+    opacity: 1;
+    filter: none;
 }
 h1{
     text-align: center;
     text-shadow: 1px 1px 2px black;
 }
-input[type='submit']:hover{
+input[type="submit"]:hover{
     background-color: #26fc54c2;
     box-shadow: 0px 0px 3px white;
 }

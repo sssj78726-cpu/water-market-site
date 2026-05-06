@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>admin</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+</head>
+<body>
+    <h1>all users</h1>
+    {% for user in users %}
+    <div class="card2Boss">
+        <div class="card2">
+            name:{{user.login}}
+            balance:{{user.balance}}$
+            <a href="/delete/{{user.id}}">delete</a>
+        </div>
+    </div>
+    {% endfor %}
+    <div class='card2Boss'>
+        <a href="/">home</a>
+    </div>
+</body>
+</html>

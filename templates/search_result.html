@@ -7,13 +7,15 @@
 <body>
     <div class="card2Boss">
         <div class="card2">
-            {% if users %}
-                {% for u in users %}
-                    <a href="/profile/{{ u.id }}">{{ u.login }}</a><br>
-                {% endfor %}
-            {% else %}
-                <p>user not found</p>
-            {% endif %}
+            <div class="searchRes">
+                {% if users %}
+                    {% for u in users %}
+                        <a href="/profile/{{ u.id }}">{{ u.login }}</a><br>
+                    {% endfor %}
+                {% else %}
+                    <p>user not found</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </body>

@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Shop of water</h1>
-    {% if 'user' not in session%}
+    {% if not current_user.is_authenticated %}
         <div class="login">
             <a href="/login">LOGIN</a>
         </div>
@@ -24,6 +24,7 @@
     <div class="card2Boss">
         <div class="links">
             <nav>
+                <a href="/how_admin">info</a>
                 <a href="/cart">Cart</a>
                 <a href="/catalog">cataloge</a>
                 <a href="/search">search</a>
