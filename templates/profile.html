@@ -4,15 +4,16 @@
     <title>{{login}}profile</title>
     <style>
     .profile{
-        width: 400px;
+        width: 270px;
         margin: auto;
         padding: 10px;
-        background-color: cornflowerblue;
+        background-color: rgb(145, 145, 145);
         border-radius: 10px;
         font-style: normal;
+        
     }
     body{
-        background-color: #0094ff;
+        background-color: #b9b9b9;
     }
     a{
         color:black;
@@ -32,16 +33,48 @@
     h3{
         color:chartreuse
     }
+    h2{
+        color:dimgrey;
+    }
+    .card2Boss{
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+        gap:20px
+    }
+    .button a{
+        background: linear-gradient(to top,#006eff,#b0d2ff);
+        color:white;
+        border:1px solid black;
+        border-radius: 10px;
+        transition: 200ms;
+        padding: 5px;
+        font-size: 20px;
+    }
+    .button a:hover{
+        background: linear-gradient(to top,#ff0000,#ffffff );
+        box-shadow:0px 0px 1px #ff0000;
+    }
     </style>
 </head>
 <body>
     <div class="profile">
         <h1>PROFILE</h1>
         <h2>{{name}} !</h2>
-        <img src="{{url_for('static',filename='avatars/'+ image)}}", width="80"><a href="/change_avatar">change</a>
+        <img src="{{url_for('static',filename='avatars/'+ image)}}", width="80">
+        <br>
+        <div class="button">
+            <a href="/change_avatar">change</a>
+        </div>
         <h3>balance:{{balance}}$</h3>
-        <a href="/add_balance">-Add Balance-</a>   
-        <a href="/">-Home-</a>
+        <div class="button">
+            <a href="/add_balance">-Add Balance-</a>
+        </div>
+        <br>
+        <div class="button"> 
+            <a href="/">-Home-</a>
+        </div>
     </div>
 </body>
 </html>

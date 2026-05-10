@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forgot</title>
+    <link rel="stylesheet" href="{{url_for('static',filename = 'style.css')}}" >
+</head>
+<body>
+    <h1>Forgot</h1>
+    <div class="card2Boss">
+            <div class="card2">
+                <form method='post'>
+                    {{form.csrf_token}}
+                    {{ form.email(placeholder="Your email") }}
+                    <br>
+                    {{form.email.label}}
+                    <br>
+                    {{form.submit()}}
+                    <br>
+                    {{ form.user_id() }}
+                </form>
+        </div>
+    </div>
+    <a href="/">home</a>
+</body>
+</html>

@@ -2,24 +2,36 @@
 <html>
 <head>
     <title>change avatar</title>
-    <link rel="stylesheet" href="{{url_for('static',filename = 'style.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename = 'chose.css')}}">
 </head>
 <body>
-    <h1>Change!</h1>
-    your avatar: <img src="{{url_for('static',filename = 'avatars/' + image)}}", width="70">
+    <div class="card2Boss">
+        <h1>Change!</h1>
+    </div>
+    <div class="card2Boss">
+        your avatar: <img src="{{url_for('static',filename = 'avatars/' + image)}}", width="70">
+    </div>
+    <br>
     <form method="post">
-        <div class="but">
-            {{form.hidden_tag()}}
-            {{form.csrf_token}}
-            {{ form.change() }}
-            {% for error in form.change.errors %}
-                <span>{{error}}</span>
-            {% endfor %}
-            {{form.submit()}}
-            <br>
+        <div class="card2Boss">
+            <div class="but">
+                {{form.hidden_tag()}}
+                {{form.csrf_token}}
+                {{ form.change() }}
+                {% for error in form.change.errors %}
+                    <span>{{error}}</span>
+                {% endfor %}
+                {{form.submit()}}
+                <br>
+            </div>
         </div>
     </form>
-    <a href="/profile">back</a>
+    <br>
+    <div class="card2Boss">
+        <div class="login">
+            <a href="/profile">back</a>
+        </div>
+    </div>
 </body>
 </html>
     

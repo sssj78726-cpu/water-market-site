@@ -5,22 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Shop of water</h1>
-    {% if not current_user.is_authenticated %}
-        <div class="login">
-            <a href="/login">LOGIN</a>
-        </div>
-    {% else %}
-        <div class="login">
-            <a href="/exit">EXIT</a>
-        </div>
-        <br>
-        <div class="login">
-            <a href="/profile">profile</a>
-        </div>
-    {% endif %}
-    
-            
+    <h1>Shop of water</h1>        
     <div class="card2Boss">
         <div class="links">
             <nav>
@@ -28,6 +13,7 @@
                 <a href="/cart">Cart</a>
                 <a href="/catalog">cataloge</a>
                 <a href="/search">search</a>
+                <a href="/account">account</a>
             </nav>
             <div class="sprite">
                 <a href="/sprite">Sprite!!!</a>

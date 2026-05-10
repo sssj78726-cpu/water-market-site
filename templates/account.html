@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>account</title>
+    <link rel="stylesheet" href="{{url_for('static',filename = 'style.css' )}}">
+</head>
+<body>
+    <h1>account</h1>
+    {% if not current_user.is_authenticated %}
+        <div class="card2Boss">        
+            <div class="login">
+                <a href="/login">LOGIN</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="card2Boss">
+            <div class="login">
+                <a href="/exit">EXIT</a>
+            </div>
+            <br>
+            <div class="login">
+                <a href="/profile">profile</a>
+            </div>
+        </div>    
+    {% endif %}
+    <br>
+    <div class="card2Boss">
+        <a href="/">home</a>
+    </div>
+</body>
+</html>

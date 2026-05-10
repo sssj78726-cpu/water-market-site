@@ -3,12 +3,14 @@ import hashlib
 from dotenv import load_dotenv
 import os
 from flask_wtf import FlaskForm
-from wtforms import DateTimeLocalField, StringField, SelectField, SubmitField,PasswordField,RadioField
-from wtforms.validators import DataRequired, Length,ValidationError
+from wtforms import DateTimeLocalField, StringField, SelectField, SubmitField,PasswordField,RadioField, HiddenField
+from wtforms.validators import DataRequired, Length,ValidationError,Email
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user,LoginManager,logout_user,login_required,current_user,UserMixin
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
 
 load_dotenv()
 app = Flask(__name__)
@@ -23,6 +25,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
+mail = Mail(app)
+
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer,primary_key = True)
     login = db.Column(db.String(80), unique = True, nullable = False)
@@ -30,10 +43,16 @@ class User(db.Model,UserMixin):
     is_admin = db.Column(db.Integer, default = 0)
     balance = db.Column(db.Integer, default = 0)
     image = db.Column(db.String(150),nullable = False)
+    email = db.Column(db.String(100),nullable = False,unique = True)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))  
+
+class Forgot(FlaskForm):
+    email = StringField('email',validators=[DataRequired()])
+    submit = SubmitField('push')
+    user_id = HiddenField('user_id')
 
 class Cartss(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -53,6 +72,7 @@ class RegForm(FlaskForm):
     login = StringField('login',validators=[DataRequired(),Length(min=4, message='min lenght 4 simvols!')])
     password = PasswordField('password', validators=[DataRequired(),Length(min=6,message='min lenght 6 simvols!')])
     submit = SubmitField('registration')
+    email = StringField('email',validators=[DataRequired(),Email()])
 
     def validate_login(self, field):
         user = User.query.filter_by(login = field.data).first()
@@ -75,6 +95,11 @@ class Photos(FlaskForm):
 class BuyForm(FlaskForm):
     submit = SubmitField('buy')
 
+class NewPasswordForm(FlaskForm):
+    password_new = StringField('new password',validators=[DataRequired(),Length(min=6,message='6 letter min')])
+    submit = SubmitField('new')
+    user_id = HiddenField('user_id')
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -87,13 +112,14 @@ def reg():
             login = form.login.data
             password = form.password.data
             hashs = hashlib.sha256(password.encode()).hexdigest()
-            if login == 'admin2011':
+            email = form.email.data
+            if login == 'admin20111':
                 is_admin = 1
                 balance = 0
             else:
                 is_admin = 0
                 balance = 0
-            new_user = User(login = login, Password = hashs, is_admin = is_admin, balance = balance,image = 'default.png')
+            new_user = User(login = login, Password = hashs, is_admin = is_admin, balance = balance,image = 'default.png',email = email)
             db.session.add(new_user)
             db.session.commit()
             return "<h1>you registr</h1><a href='/login'>sign in</a>"
@@ -127,6 +153,8 @@ def cataloge():
     products = Product.query.all()
     if products:
         return render_template('cataloge.html',products = products )
+    else:
+        return render_template('catalogue_error')
 
 @app.route('/add_cart/<int:product_id>')
 @login_required
@@ -256,6 +284,46 @@ def delete(id):
 @app.route('/how_admin')
 def how_admin():
     return render_template('how.html')
+
+@app.route('/account')
+def account():
+    return render_template('account.html')
+
+@app.route('/forgot_password',methods =['GET','POST'])
+def forgot():
+    form = Forgot()
+    if request.method == "POST" and form.validate_on_submit():
+        email = form.email.data
+        user = User.query.filter_by(email = email).first()
+        if user:
+            token = serializer.dumps(user.id, salt='reset_password')
+            reset_url = url_for('forgote_password',token = token,_external=True)
+            return f'<a href="{reset_url}">reset password</a>'
+    else:
+        return render_template('forgot.html',form = form)
+
+@app.route('/forgot_password/<token>',methods=['GET','POST'])
+def forgote_password(token):
+    form = NewPasswordForm()
+    if request.method =="GET":
+        try:
+            user_id = serializer.loads(token, salt='reset_password',max_age=300)
+        except Exception:
+            return "<h1>unknown token</h1>"
+        return render_template('new_password.html',form=form,user_id = user_id)
+    else:
+        if form.validate_on_submit():
+            user_id = form.user_id.data
+            password_new = form.password_new.data
+            hashs = hashlib.sha256(password_new.encode()).hexdigest()
+            user = User.query.get(user_id)
+            if not user:
+                return '<h1>bad user</h1><a href="/">home</>',404
+            user.Password = hashs
+            db.session.commit()
+            return redirect(url_for('login'))
+
+
 
 @app.errorhandler(404)
 def error404(e):
